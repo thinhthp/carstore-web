@@ -42,6 +42,7 @@ import { useSelector } from 'react-redux';
 import type { RootState } from '@/redux/store';
 import { useGetMyInfo } from '@/queries/user.query';
 import LogoPNG from '@/assets/logo.jpg';
+import { Link } from 'react-router-dom';
 export const company = {
   name: 'LiveStock',
   logo: Cow
@@ -56,12 +57,12 @@ export default function AppSidebar() {
 
   const handleLogout = () => {
     __helpers.cookie_delete('AT');
+    __helpers.localStorage_delete('AT'); // legacy cleanup
     window.location.href = '/login';
   };
   const role = __helpers.getUserRole();
-  const isCEO = role.includes('Giám Đốc');
-
-  const navItems = isCEO ? ceoNavItems : ceoNavItems;
+  // Role currently unused; future filtering can be applied here.
+  const navItems = ceoNavItems;
 
   const getInitials = (name) => {
     if (!name) return 'U';
@@ -154,9 +155,9 @@ export default function AppSidebar() {
                                       : 'hover:bg-slate-100 dark:hover:bg-slate-800'
                                   }`}
                                 >
-                                  <a href={subItem.url}>
+                                  <Link to={subItem.url}>
                                     <span>{subItem.title}</span>
-                                  </a>
+                                  </Link>
                                 </SidebarMenuSubButton>
                               </SidebarMenuSubItem>
                             );
@@ -177,7 +178,7 @@ export default function AppSidebar() {
                           : ''
                       }`}
                     >
-                      <a href={item.url}>
+                      <Link to={item.url}>
                         <div
                           className={`mr-3 flex size-5 items-center justify-center rounded-md ${
                             isActive
@@ -188,7 +189,7 @@ export default function AppSidebar() {
                           <Icon className="size-4" />
                         </div>
                         <span className="font-medium">{item.title}</span>
-                      </a>
+                      </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 );

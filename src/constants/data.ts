@@ -188,6 +188,92 @@ export const ceoNavItems: any = [
         items: []
       }
     ]
+  },
+  // Carstore management group (added)
+  {
+    label: 'Carstore',
+    detail: [
+      {
+        title: 'Sản phẩm',
+        icon: 'package',
+        isActive: false,
+        shortcut: ['d', 'd'],
+        items: [
+          {
+            title: 'Brands',
+            url: '/dashboard/brands',
+            isActive: false,
+            shortcut: ['d', 'd'],
+            items: []
+          },
+          {
+            title: 'Models',
+            url: '/dashboard/models',
+            isActive: false,
+            shortcut: ['d', 'd'],
+            items: []
+          },
+          {
+            title: 'Variants',
+            url: '/dashboard/variants',
+            isActive: false,
+            shortcut: ['d', 'd'],
+            items: []
+          }
+        ]
+      },
+      {
+        title: 'Tồn kho',
+        icon: 'layers',
+        isActive: false,
+        shortcut: ['d', 'd'],
+        items: [
+          {
+            title: 'Dealers',
+            url: '/dashboard/dealers',
+            isActive: false,
+            shortcut: ['d', 'd'],
+            items: []
+          },
+          {
+            title: 'Inventories',
+            url: '/dashboard/inventories',
+            isActive: false,
+            shortcut: ['d', 'd'],
+            items: []
+          }
+        ]
+      },
+      {
+        title: 'Bán hàng',
+        icon: 'product',
+        isActive: false,
+        shortcut: ['d', 'd'],
+        items: [
+          {
+            title: 'Customers',
+            url: '/dashboard/customers',
+            isActive: false,
+            shortcut: ['d', 'd'],
+            items: []
+          },
+          {
+            title: 'Orders',
+            url: '/dashboard/orders',
+            isActive: false,
+            shortcut: ['d', 'd'],
+            items: []
+          },
+          {
+            title: 'Payments',
+            url: '/dashboard/payments',
+            isActive: false,
+            shortcut: ['d', 'd'],
+            items: []
+          }
+        ]
+      }
+    ]
   }
 ];
 

@@ -10,9 +10,12 @@ import {
 import { Input } from '@/components/ui/input';
 import __helpers from '@/helpers';
 import { useLogin } from '@/queries/auth.query';
+import { useAppDispatch } from '@/redux/store';
+import { login as loginAction, setInfoUser } from '@/redux/auth.slice';
 import { useRouter } from '@/routes/hooks';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useState } from 'react';
+import { jwtDecode } from 'jwt-decode';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 const formSchema = z.object({
@@ -29,6 +32,7 @@ export default function UserAuthForm() {
   const [loading, setLoading] = useState(false);
   const { mutateAsync: login } = useLogin();
   const [queryError, setQueryError] = useState<string | null>(null);
+  const dispatch = useAppDispatch();
   const defaultValues = {
     username: '',
     password: ''
@@ -49,18 +53,61 @@ export default function UserAuthForm() {
 
   const onSubmit = async (data: UserFormValue) => {
     setLoading(true);
+    setQueryError(null);
     try {
-      const model = {
-        email: data.username,
-        password: data.password
-      };
+      const model = { email: data.username, password: data.password };
       const res = await login(model);
-      console.log(res);
-      if (res) {
-        const token = res.data;
-        __helpers.cookie_set('AT', token);
-        router.push('/');
+      if (!res) {
+        setQueryError('Đăng nhập thất bại. Vui lòng thử lại.');
+        return;
       }
+
+      // Flexible token extraction across possible response shapes
+      const tokenCandidate: any =
+        (typeof res === 'string' ? res : null) ||
+        res?.token ||
+        res?.tokenString ||
+        res?.data?.token ||
+        res?.data?.tokenString ||
+        res?.data;
+
+      const token = typeof tokenCandidate === 'string' ? tokenCandidate : '';
+      if (!token) {
+        setQueryError('Đăng nhập thất bại. Không nhận được token.');
+        return;
+      }
+
+      // Optional user payload to persist
+      const user = res?.user || res?.data?.user || res?.response || null;
+      if (user?.id) __helpers.localStorage_set('user_id', user.id);
+      if (user?.name) __helpers.localStorage_set('user_name', user.name);
+
+      // Store token in cookie (required for axios Authorization header & ProtectedRoute)
+      // Derive expiration (days) from JWT exp if available
+      try {
+        const decoded: any = jwtDecode(token);
+        if (decoded?.exp) {
+          const secondsUntilExpiry = decoded.exp * 1000 - Date.now();
+          const days =
+            secondsUntilExpiry > 0
+              ? secondsUntilExpiry / (1000 * 60 * 60 * 24)
+              : undefined;
+          __helpers.cookie_set('AT', token, days ? Math.ceil(days) : undefined);
+        } else {
+          __helpers.cookie_set('AT', token); // session cookie fallback
+        }
+      } catch {
+        __helpers.cookie_set('AT', token);
+      }
+
+      // Update redux auth state
+      dispatch(loginAction());
+      if (user) dispatch(setInfoUser(user));
+
+      // Decode token safely (optional)
+      // Optional: could branch navigation per role later if needed
+
+      router.push('/dashboard');
     } catch (err: any) {
       form.setError('password', {
         type: 'manual',
