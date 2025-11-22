@@ -82,49 +82,42 @@ class helpers {
     localStorage.removeItem(name);
   }
 
-  getFullYear() {
-    return new Date().getFullYear();
-  }
-
-  generateBaseURLClient() {
-    const baseURL =
-      process.env.NODE_ENV === 'production' ? 'd21' : 'http://localhost:3000/';
-    return baseURL;
-  }
-
-  decodeToken(token) {
-    return jwtDecode(token) as any;
-  }
-
   getUserRole() {
     const token = this.cookie_get('AT');
     if (!token) return '';
     const userDetail = this.decodeToken(token);
-    return userDetail.Role;
+    if (!userDetail) return '';
+    const direct = userDetail.Role || userDetail.role || userDetail.roles;
+    const claim =
+      userDetail[
+        'http://schemas.microsoft.com/ws/2008/06/identity/claims/role'
+      ];
+    return direct || claim || '';
   }
+  decodeToken(token: string): any {
+    try {
+      return jwtDecode(token);
+    } catch (_e) {
+      return null;
+    }
+  }
+
   getUserId() {
     const token = this.cookie_get('AT');
     if (!token) return '';
     const userDetail = this.decodeToken(token);
-    return userDetail.UserId;
-  }
-
-  isAdminRole() {
-    return this.getUserRole() === 'ADMIN';
-  }
-
-  getUserId() {
-    const token = this.cookie_get('AT');
-    if (!token) return '';
-    const userDetail = this.decodeToken(token);
-    return userDetail.UserId;
+    return userDetail?.UserId || userDetail?.userId || '';
   }
 
   getUserEmail() {
     const token = this.cookie_get('AT');
     if (!token) return '';
     const userDetail = this.decodeToken(token);
-    return userDetail.email;
+    return userDetail?.email || userDetail?.Email || '';
+  }
+
+  isAdminRole() {
+    return this.getUserRole() === 'ADMIN';
   }
 
   isPathAllowed = (navItems: any, path: string): boolean => {

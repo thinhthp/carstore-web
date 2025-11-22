@@ -14,7 +14,8 @@ const onRequestError = (error: any) => {
   return Promise.reject(error);
 };
 const onResponseSuccess = (response: any) => {
-  return response.data;
+  // Return full axios response for consistency with BaseRequest wrappers
+  return response;
 };
 const onResponseError = (error: any) => {
   if (error.response) {
